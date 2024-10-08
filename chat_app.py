@@ -24,9 +24,12 @@ class ChatApp:
                 st.markdown(prompt)
             
             # 모델에 사용자 입력을 전달하고 응답을 받는다
-            response = self.model.get_response(prompt)
-            self.history.add_message("assistant", response)
+            stream = self.model.get_response(prompt)
             
             # 응답을 화면에 표시
             with st.chat_message("assistant"):
-                st.write(response)
+                response = st.write_stream(stream)
+
+            self.history.add_message("assistant", response)
+            
+
