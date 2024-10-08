@@ -1,6 +1,7 @@
 from langchain_aws.chat_models import ChatBedrock
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langchain_core.messages import AIMessage, AIMessageChunk
+from langgraph.checkpoint.memory import MemorySaver
 
 class ChatModel:
     """Chat 모델 클래스는 주어진 모델 ID로 대화 모델을 초기화하고 요청에 대한 응답을 제공합니다."""
@@ -12,7 +13,8 @@ class ChatModel:
         self.graph_builder.add_node('model', self._call_model)
         self.graph_builder.add_edge(START, 'model')
         self.graph_builder.add_edge('model', END)
-        self.graph = self.graph_builder.compile()
+        self.memory = MemorySaver()
+        self.graph = self.graph_builder.compile(checkpointer=self.memory)
         self.config = {'configurable': {'thread_id': '1'}}
 
     def _call_model(self, state: MessagesState):
